@@ -31,7 +31,10 @@ const Navbar: React.FC = () => {
               <Upload size={16} /> Upload
             </Link>
             <Link to="/dashboard" className="flex items-center gap-2 text-white/70 hover:text-primary transition-all">
-              <User size={16} /> Dashboard
+              <LayoutGrid size={16} /> Dashboard
+            </Link>
+            <Link to="/profile" className="flex items-center gap-2 text-white/70 hover:text-primary transition-all">
+              <User size={16} /> Profile
             </Link>
           </>
         )}

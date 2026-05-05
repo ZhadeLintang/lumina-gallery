@@ -9,6 +9,7 @@ import Upload from './pages/Upload';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Profile from './pages/Profile';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -27,6 +28,7 @@ const AppContent: React.FC = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/upload" element={<Upload />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Routes>
       
