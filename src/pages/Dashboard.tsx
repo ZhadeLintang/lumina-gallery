@@ -1,13 +1,15 @@
-import React from 'react';
-import { useGallery } from '../hooks/useGallery';
+import React, { useState } from 'react';
+import { useGallery, GalleryItem } from '../hooks/useGallery';
 import { useAuth } from '../context/AuthContext';
 import { Trash2, Edit3, Image as ImageIcon, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import EditModal from '../components/EditModal';
 
 const Dashboard: React.FC = () => {
   const { items, deleteItem } = useGallery();
   const { user } = useAuth();
+  const [editingItem, setEditingItem] = useState<GalleryItem | null>(null);
 
   const userItems = items.filter(item => item.authorId === user?.id);
 
@@ -17,8 +19,8 @@ const Dashboard: React.FC = () => {
         <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-20">
           <div>
             <span className="text-primary font-black text-xs uppercase tracking-[0.3em] mb-4 inline-block">Management</span>
-            <h1 className="text-5xl md:text-7xl font-black mb-4 tracking-tighter leading-none">Welcome, <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Dashboard</span></h1>
-            <p className="text-white/50 text-lg font-medium">Kelola Galeri Anda dan lacak aset digital Anda.</p>
+            <h1 className="text-5xl md:text-7xl font-black mb-4 tracking-tighter leading-none">Creator <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Dashboard</span></h1>
+            <p className="text-white/50 text-lg font-medium">Kelola galeri seni digital Anda dan pantau performa karya Anda.</p>
           </div>
           <div className="flex items-center gap-6">
             <div className="glass px-8 py-5 border-white/5 flex items-center gap-5 shadow-xl">
@@ -44,59 +46,71 @@ const Dashboard: React.FC = () => {
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="glass border-white/5 overflow-hidden group"
+                className="glass border-white/5 overflow-hidden group flex flex-col rounded-[2rem]"
               >
                 <div className="aspect-video relative overflow-hidden">
                   <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  <div className="absolute top-3 right-3 flex gap-2">
+                  <div className="absolute top-4 right-4 flex gap-2">
+                    <button 
+                      onClick={() => setEditingItem(item)}
+                      className="p-3 bg-white/10 hover:bg-primary rounded-xl text-white backdrop-blur-xl transition-all hover:scale-110"
+                      title="Edit"
+                    >
+                      <Edit3 size={18} />
+                    </button>
                     <button 
                       onClick={() => {
-                        if(window.confirm('Are you sure you want to delete this art?')) {
+                        if(window.confirm('Hapus karya seni ini selamanya?')) {
                           deleteItem(item.id);
                         }
                       }}
-                      className="p-2 bg-red-500/80 hover:bg-red-500 rounded-lg text-white backdrop-blur-md transition-colors"
+                      className="p-3 bg-red-500/20 hover:bg-red-500 rounded-xl text-white backdrop-blur-xl transition-all hover:scale-110 border border-red-500/20"
                       title="Delete"
                     >
-                      <Trash2 size={16} />
-                    </button>
-                    <button 
-                      className="p-2 bg-white/20 hover:bg-white/40 rounded-lg text-white backdrop-blur-md transition-colors"
-                      title="Edit"
-                    >
-                      <Edit3 size={16} />
+                      <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-bold truncate">{item.title}</h3>
-                    <span className="text-[10px] px-2 py-1 bg-white/5 rounded text-white/60 font-bold uppercase">
+                <div className="p-8 flex flex-col flex-1">
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="text-2xl font-black tracking-tight truncate">{item.title}</h3>
+                    <span className="text-[9px] px-3 py-1 bg-primary/20 text-primary rounded-full font-black uppercase tracking-widest border border-primary/20">
                       {item.category}
                     </span>
                   </div>
-                  <p className="text-sm text-text-secondary line-clamp-2 mb-4">
+                  <p className="text-white/40 text-sm font-medium line-clamp-2 mb-8 leading-relaxed">
                     {item.description}
                   </p>
-                  <div className="text-[10px] text-white/30 uppercase font-bold tracking-widest">
-                    Uploaded on {new Date(item.createdAt).toLocaleDateString()}
+                  <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
+                    <div className="text-[10px] text-white/20 uppercase font-black tracking-widest">
+                      {new Date(item.createdAt).toLocaleDateString()}
+                    </div>
+                    <div className="flex items-center gap-3 text-white/40 text-xs font-black">
+                       <span className="flex items-center gap-1"><Edit3 size={12} /> {item.comments?.length || 0}</span>
+                       <span className="flex items-center gap-1 text-red-500/50"><Trash2 size={12} className="hidden" /> {item.likes?.length || 0} Likes</span>
+                    </div>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
         ) : (
-          <div className="py-24 text-center glass border-white/5 rounded-3xl border-dashed border-2">
-            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 text-white/20">
+          <div className="py-24 text-center glass border-white/5 rounded-[3rem] border-dashed border-2">
+            <div className="w-20 h-20 bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-white/10">
               <ImageIcon size={40} />
             </div>
-            <h3 className="text-2xl font-bold mb-2">No uploads yet</h3>
-            <p className="text-text-secondary mb-8">Start your creative journey by uploading your first digital work.</p>
-            <Link to="/upload" className="inline-flex items-center gap-2 px-8 py-4 bg-primary hover:bg-primary-hover rounded-full font-bold transition-all shadow-lg shadow-primary/20">
-              <Plus size={20} /> Create Your First Post
+            <h3 className="text-3xl font-black mb-2 tracking-tighter">No masterpieces yet</h3>
+            <p className="text-white/40 font-medium mb-10 max-w-md mx-auto">Mulailah perjalanan kreatif Anda dengan mengunggah karya digital pertama Anda ke galeri global.</p>
+            <Link to="/upload" className="inline-flex items-center gap-3 px-10 py-5 bg-primary hover:bg-primary-hover rounded-2xl font-black text-white transition-all shadow-2xl shadow-primary/30">
+              <Plus size={24} /> Create Your First Post
             </Link>
           </div>
         )}
+
+        <EditModal 
+          item={editingItem} 
+          onClose={() => setEditingItem(null)} 
+        />
       </div>
     </div>
   );
