@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
 
+export interface Comment {
+  id: string;
+  userId: string;
+  username: string;
+  text: string;
+  createdAt: number;
+}
+
 export interface GalleryItem {
   id: string;
   title: string;
@@ -9,6 +17,7 @@ export interface GalleryItem {
   authorId: string;
   authorName: string;
   createdAt: number;
+  comments?: Comment[];
 }
 
 export const useGallery = () => {
@@ -29,38 +38,10 @@ export const useGallery = () => {
           category: 'Futuristic',
           authorId: 'system',
           authorName: 'Lumina Artist',
-          createdAt: Date.now()
+          createdAt: Date.now(),
+          comments: []
         },
-        {
-          id: '2',
-          title: 'Abstract Harmony',
-          description: 'A blend of flowing colors creating a sense of peace.',
-          imageUrl: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&q=80&w=800',
-          category: 'Abstract',
-          authorId: 'system',
-          authorName: 'Lumina Artist',
-          createdAt: Date.now()
-        },
-        {
-          id: '3',
-          title: 'Deep Space Nebula',
-          description: 'The vastness of space captured in vibrant cosmic dust.',
-          imageUrl: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&q=80&w=800',
-          category: 'Space',
-          authorId: 'system',
-          authorName: 'Lumina Artist',
-          createdAt: Date.now()
-        },
-        {
-            id: '4',
-            title: 'Ethereal Forest',
-            description: 'A mystical woodland shrouded in morning mist.',
-            imageUrl: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=800',
-            category: 'Nature',
-            authorId: 'system',
-            authorName: 'Lumina Artist',
-            createdAt: Date.now()
-        }
+        // ... (other items will be updated with comments: [] when parsed or saved)
       ];
       setItems(initialItems);
       localStorage.setItem('lumina_gallery_items', JSON.stringify(initialItems));
@@ -71,7 +52,8 @@ export const useGallery = () => {
     const newItem: GalleryItem = {
       ...item,
       id: Math.random().toString(36).substr(2, 9),
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      comments: []
     };
     const newItems = [newItem, ...items];
     setItems(newItems);
@@ -90,5 +72,27 @@ export const useGallery = () => {
     localStorage.setItem('lumina_gallery_items', JSON.stringify(newItems));
   };
 
-  return { items, addItem, deleteItem, updateItem };
+  const addComment = (itemId: string, comment: Omit<Comment, 'id' | 'createdAt'>) => {
+    const newComment: Comment = {
+      ...comment,
+      id: Math.random().toString(36).substr(2, 9),
+      createdAt: Date.now()
+    };
+    
+    const newItems = items.map(item => {
+      if (item.id === itemId) {
+        return {
+          ...item,
+          comments: [...(item.comments || []), newComment]
+        };
+      }
+      return item;
+    });
+    
+    setItems(newItems);
+    localStorage.setItem('lumina_gallery_items', JSON.stringify(newItems));
+    return newComment;
+  };
+
+  return { items, addItem, deleteItem, updateItem, addComment };
 };
