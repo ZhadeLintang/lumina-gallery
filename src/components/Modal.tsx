@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, User, Tag, Send, MessageCircle } from 'lucide-react';
+import { X, Calendar, User, Tag, Send, MessageCircle, CheckCircle2 } from 'lucide-react';
 import { GalleryItem, useGallery } from '../hooks/useGallery';
 import { useAuth } from '../context/AuthContext';
 
@@ -13,6 +13,7 @@ const Modal: React.FC<ModalProps> = ({ item, onClose }) => {
   const { addComment } = useGallery();
   const { user, isLoggedIn } = useAuth();
   const [commentText, setCommentText] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
 
   if (!item) return null;
 
@@ -25,7 +26,10 @@ const Modal: React.FC<ModalProps> = ({ item, onClose }) => {
       username: user.username,
       text: commentText
     });
+    
     setCommentText('');
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 2000);
   };
 
   return (
@@ -132,7 +136,20 @@ const Modal: React.FC<ModalProps> = ({ item, onClose }) => {
             </div>
 
             {/* Comment Input */}
-            <div className="p-8 border-t border-white/5 bg-black/20">
+            <div className="p-8 border-t border-white/5 bg-black/20 relative">
+              <AnimatePresence>
+                {showSuccess && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute -top-10 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-green-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg z-10 flex items-center gap-2"
+                  >
+                    <CheckCircle2 size={12} /> Comment Sent!
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {isLoggedIn ? (
                 <form onSubmit={handleAddComment} className="relative">
                   <input 
