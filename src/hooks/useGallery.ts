@@ -18,6 +18,7 @@ export interface GalleryItem {
   authorName: string;
   createdAt: number;
   comments?: Comment[];
+  likes?: string[]; // Array of user IDs who liked the item
 }
 
 export const useGallery = () => {
@@ -39,9 +40,9 @@ export const useGallery = () => {
           authorId: 'system',
           authorName: 'Lumina Artist',
           createdAt: Date.now(),
-          comments: []
+          comments: [],
+          likes: []
         },
-        // ... (other items will be updated with comments: [] when parsed or saved)
       ];
       setItems(initialItems);
       localStorage.setItem('lumina_gallery_items', JSON.stringify(initialItems));
@@ -53,7 +54,8 @@ export const useGallery = () => {
       ...item,
       id: Math.random().toString(36).substr(2, 9),
       createdAt: Date.now(),
-      comments: []
+      comments: [],
+      likes: []
     };
     const newItems = [newItem, ...items];
     setItems(newItems);
@@ -94,5 +96,23 @@ export const useGallery = () => {
     return newComment;
   };
 
-  return { items, addItem, deleteItem, updateItem, addComment };
+  const toggleLike = (itemId: string, userId: string) => {
+    const newItems = items.map(item => {
+      if (item.id === itemId) {
+        const likes = item.likes || [];
+        const isLiked = likes.includes(userId);
+        const newLikes = isLiked 
+          ? likes.filter(id => id !== userId)
+          : [...likes, userId];
+        
+        return { ...item, likes: newLikes };
+      }
+      return item;
+    });
+    
+    setItems(newItems);
+    localStorage.setItem('lumina_gallery_items', JSON.stringify(newItems));
+  };
+
+  return { items, addItem, deleteItem, updateItem, addComment, toggleLike };
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Maximize2, User } from 'lucide-react';
+import { Maximize2, User, Heart } from 'lucide-react';
 import { GalleryItem } from '../hooks/useGallery';
 
 interface GalleryCardProps {
@@ -41,11 +41,17 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ item, onClick }) => {
             
             <h3 className="text-2xl font-black text-white mb-2 leading-tight">{item.title}</h3>
             
-            <div className="flex items-center gap-2 text-sm text-white/50 font-bold">
-              <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                <User size={12} />
+            <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center gap-2 text-sm text-white/50 font-bold">
+                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                  <User size={12} />
+                </div>
+                <span>{item.authorName}</span>
               </div>
-              <span>{item.authorName}</span>
+              <div className="flex items-center gap-1.5 text-red-500 font-black text-xs">
+                <Heart size={14} fill="currentColor" />
+                <span>{item.likes?.length || 0}</span>
+              </div>
             </div>
           </div>
         </div>

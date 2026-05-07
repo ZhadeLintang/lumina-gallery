@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, User, Tag, Send, MessageCircle, CheckCircle2 } from 'lucide-react';
+import { X, Calendar, User, Tag, Send, MessageCircle, CheckCircle2, Heart } from 'lucide-react';
 import { GalleryItem, useGallery } from '../hooks/useGallery';
 import { useAuth } from '../context/AuthContext';
 
@@ -10,7 +10,7 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ item: propItem, onClose }) => {
-  const { items, addComment } = useGallery();
+  const { items, addComment, toggleLike } = useGallery();
   const { user, isLoggedIn } = useAuth();
   const [commentText, setCommentText] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
@@ -19,6 +19,14 @@ const Modal: React.FC<ModalProps> = ({ item: propItem, onClose }) => {
   const item = propItem ? items.find(i => i.id === propItem.id) || propItem : null;
 
   if (!item) return null;
+
+  const isLiked = user && item.likes?.includes(user.id);
+
+  const handleToggleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isLoggedIn || !user) return;
+    toggleLike(item.id, user.id);
+  };
 
   const handleAddComment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,9 +84,20 @@ const Modal: React.FC<ModalProps> = ({ item: propItem, onClose }) => {
                 <span className="px-4 py-1.5 bg-primary/20 text-primary rounded-full text-xs font-black uppercase tracking-widest mb-6 inline-block border border-primary/20">
                   {item.category}
                 </span>
-                <h2 className="text-4xl font-black mb-6 tracking-tighter leading-none bg-gradient-to-br from-white via-white to-white/40 bg-clip-text text-transparent">
-                  {item.title}
-                </h2>
+                <div className="flex items-center justify-between gap-4 mb-6">
+                  <h2 className="text-4xl font-black tracking-tighter leading-none bg-gradient-to-br from-white via-white to-white/40 bg-clip-text text-transparent">
+                    {item.title}
+                  </h2>
+                  <button 
+                    onClick={handleToggleLike}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-2xl transition-all ${
+                      isLiked ? 'bg-red-500/10 text-red-500' : 'bg-white/5 text-white/30 hover:bg-white/10'
+                    }`}
+                  >
+                    <Heart size={20} fill={isLiked ? "currentColor" : "none"} className={isLiked ? "animate-pulse" : ""} />
+                    <span className="font-black text-sm">{item.likes?.length || 0}</span>
+                  </button>
+                </div>
                 <p className="text-white/50 text-lg leading-relaxed font-medium mb-8">
                   {item.description}
                 </p>
