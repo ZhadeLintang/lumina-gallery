@@ -9,11 +9,14 @@ interface ModalProps {
   onClose: () => void;
 }
 
-const Modal: React.FC<ModalProps> = ({ item, onClose }) => {
-  const { addComment } = useGallery();
+const Modal: React.FC<ModalProps> = ({ item: propItem, onClose }) => {
+  const { items, addComment } = useGallery();
   const { user, isLoggedIn } = useAuth();
   const [commentText, setCommentText] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // Find the most up-to-date version of the item from the items array
+  const item = propItem ? items.find(i => i.id === propItem.id) || propItem : null;
 
   if (!item) return null;
 
